@@ -3,19 +3,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, PlusCircle } from "lucide-react";
+import { Plus, PlusCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { lessons, Word } from "@/data/lessons";
 
 interface AddContentFormProps {
   onLessonAdded?: () => void;
   onWordAdded?: () => void;
+  onLessonDeleted?: () => void;
+  onWordDeleted?: () => void;
   currentLessonId?: number;
 }
 
-const AddContentForm = ({ onLessonAdded, onWordAdded, currentLessonId }: AddContentFormProps) => {
+const AddContentForm = ({ onLessonAdded, onWordAdded, onLessonDeleted, onWordDeleted, currentLessonId }: AddContentFormProps) => {
   const [newLessonTitle, setNewLessonTitle] = useState("");
   const [newLessonWords, setNewLessonWords] = useState("");
   const [newWordEnglish, setNewWordEnglish] = useState("");
@@ -83,8 +84,32 @@ const AddContentForm = ({ onLessonAdded, onWordAdded, currentLessonId }: AddCont
     }
   };
 
+  const deleteLesson = () => {
+    if (!currentLessonId) return;
+    
+    const lessonIndex = lessons.findIndex(l => l.id === currentLessonId);
+    if (lessonIndex !== -1) {
+      lessons.splice(lessonIndex, 1);
+      toast.success("Lesson deleted successfully!");
+      onLessonDeleted?.();
+    }
+  };
+
+  const deleteWord = (wordIndex: number) => {
+    if (!currentLessonId) return;
+    
+    const lesson = lessons.find(l => l.id === currentLessonId);
+    if (lesson && lesson.words[wordIndex]) {
+      lesson.words.splice(wordIndex, 1);
+      toast.success("Word deleted successfully!");
+      onWordDeleted?.();
+    }
+  };
+
+  const currentLesson = currentLessonId ? lessons.find(l => l.id === currentLessonId) : null;
+
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 flex-wrap">
       {/* Add New Lesson Dialog */}
       <Dialog open={isAddingLesson} onOpenChange={setIsAddingLesson}>
         <DialogTrigger asChild>
@@ -170,6 +195,18 @@ const AddContentForm = ({ onLessonAdded, onWordAdded, currentLessonId }: AddCont
             </div>
           </DialogContent>
         </Dialog>
+      )}
+
+      {/* Delete Lesson Button (only show if we have a current lesson) */}
+      {currentLessonId && (
+        <Button 
+          variant="destructive" 
+          onClick={deleteLesson}
+          className="ml-auto"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete Lesson
+        </Button>
       )}
     </div>
   );

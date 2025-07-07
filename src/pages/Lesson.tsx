@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { lessons, getProgress, saveProgress } from "@/data/lessons";
-import { ArrowLeft, Volume2, RotateCcw, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, Volume2, RotateCcw, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import AddContentForm from "@/components/AddContentForm";
 
 const Lesson = () => {
   const { lessonId } = useParams();
+  const navigate = useNavigate();
   const lesson = lessons.find(l => l.id === parseInt(lessonId || "0"));
   
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -38,6 +39,29 @@ const Lesson = () => {
     // Reset to first card if we're beyond the new array length
     if (currentCardIndex >= lesson.words.length) {
       setCurrentCardIndex(0);
+    }
+  };
+
+  const handleWordDeleted = () => {
+    setRefreshKey(prev => prev + 1);
+    // Adjust current card index if needed
+    if (currentCardIndex >= lesson.words.length && lesson.words.length > 0) {
+      setCurrentCardIndex(lesson.words.length - 1);
+    } else if (lesson.words.length === 0) {
+      setCurrentCardIndex(0);
+    }
+  };
+
+  const handleLessonDeleted = () => {
+    toast.success("Lesson deleted! Redirecting to home...");
+    setTimeout(() => navigate("/"), 1000);
+  };
+
+  const deleteWord = (wordIndex: number) => {
+    if (lesson && lesson.words[wordIndex]) {
+      lesson.words.splice(wordIndex, 1);
+      handleWordDeleted();
+      toast.success("Word deleted successfully!");
     }
   };
 
@@ -121,7 +145,12 @@ const Lesson = () => {
                 Score: {progress.score}%
               </Badge>
             )}
-            <AddContentForm currentLessonId={lesson.id} onWordAdded={handleWordAdded} />
+            <AddContentForm 
+              currentLessonId={lesson.id} 
+              onWordAdded={handleWordAdded}
+              onWordDeleted={handleWordDeleted}
+              onLessonDeleted={handleLessonDeleted}
+            />
           </div>
         </div>
 
@@ -302,7 +331,7 @@ const Lesson = () => {
               </>
             )}
 
-            {/* Word Table */}
+            {/* Word Table with Delete Buttons */}
             <div className="max-w-4xl mx-auto">
               <Card>
                 <CardHeader>
@@ -319,13 +348,23 @@ const Lesson = () => {
                           <div className="font-semibold text-gray-800">{word.english}</div>
                           <div className="text-gray-600">{word.translation}</div>
                         </div>
-                        <Button
-                          onClick={() => speakWord(word.english)}
-                          variant="ghost"
-                          size="sm"
-                        >
-                          <Volume2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => speakWord(word.english)}
+                            variant="ghost"
+                            size="sm"
+                          >
+                            <Volume2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => deleteWord(index)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

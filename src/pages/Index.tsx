@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import AddContentForm from "@/components/AddContentForm";
 
 const Index = () => {
   const [refreshKey, setRefreshKey] = useState(0);
+  const navigate = useNavigate();
   const overallProgress = getOverallProgress();
 
   const handleLessonAdded = () => {
@@ -97,24 +98,6 @@ const Index = () => {
               </Link>
             );
           })}
-        </div>
-
-        {/* Instructions for editing */}
-        <div className="mt-16 max-w-4xl mx-auto">
-          <Card className="bg-blue-50 border-blue-200">
-            <CardHeader>
-              <CardTitle className="text-blue-800 flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                📝 Easy Editing Instructions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-blue-700 space-y-3">
-              <p><strong>To add new words:</strong> Find the file called "lessons.ts" in your project</p>
-              <p><strong>Format:</strong> Just copy this pattern: <code className="bg-blue-100 px-2 py-1 rounded">{"{ english: \"word\", translation: \"translation\" }"}</code></p>
-              <p><strong>To add new lessons:</strong> Copy an entire lesson block and change the id, title, and words</p>
-              <p><strong>Your progress is automatically saved!</strong> Scores are calculated based on your quiz performance</p>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
