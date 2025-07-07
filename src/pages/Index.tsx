@@ -1,13 +1,20 @@
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { lessons, getProgress, getOverallProgress } from "@/data/lessons";
 import { BookOpen, Trophy, Target } from "lucide-react";
+import AddContentForm from "@/components/AddContentForm";
 
 const Index = () => {
+  const [refreshKey, setRefreshKey] = useState(0);
   const overallProgress = getOverallProgress();
+
+  const handleLessonAdded = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -21,13 +28,18 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-6">Master English vocabulary with interactive lessons</p>
           
           {/* Overall Progress */}
-          <div className="max-w-md mx-auto bg-white rounded-lg p-6 shadow-md">
+          <div className="max-w-md mx-auto bg-white rounded-lg p-6 shadow-md mb-8">
             <div className="flex items-center gap-2 mb-3">
               <Trophy className="h-5 w-5 text-yellow-500" />
               <span className="font-semibold text-gray-700">Overall Progress</span>
             </div>
             <Progress value={overallProgress} className="h-3 mb-2" />
             <p className="text-2xl font-bold text-blue-600">{overallProgress}%</p>
+          </div>
+
+          {/* Add New Lesson Button */}
+          <div className="mb-8">
+            <AddContentForm onLessonAdded={handleLessonAdded} />
           </div>
         </div>
 
@@ -38,7 +50,7 @@ const Index = () => {
             const scoreColor = progress.score >= 80 ? 'bg-green-500' : progress.score >= 60 ? 'bg-yellow-500' : 'bg-red-500';
             
             return (
-              <Link key={lesson.id} to={`/lesson/${lesson.id}`}>
+              <Link key={`${lesson.id}-${refreshKey}`} to={`/lesson/${lesson.id}`}>
                 <Card className="h-full hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-2 hover:border-blue-300">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between mb-2">
