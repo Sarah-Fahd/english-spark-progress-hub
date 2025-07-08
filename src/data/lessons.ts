@@ -60,20 +60,34 @@ const defaultLessons: Lesson[] = [
 
 // Load lessons from localStorage or use defaults
 const loadLessons = (): Lesson[] => {
-  const saved = localStorage.getItem('lessons');
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return [...defaultLessons];
+  try {
+    const saved = localStorage.getItem('lessons');
+    if (saved) {
+      const parsedLessons = JSON.parse(saved);
+      if (Array.isArray(parsedLessons) && parsedLessons.length > 0) {
+        console.log("Loaded lessons from localStorage:", parsedLessons);
+        return parsedLessons;
+      }
     }
+  } catch (error) {
+    console.error("Error loading lessons from localStorage:", error);
   }
-  return [...defaultLessons];
+  console.log("Using default lessons");
+  // Save defaults to localStorage on first load
+  const defaults = [...defaultLessons];
+  localStorage.setItem('lessons', JSON.stringify(defaults));
+  return defaults;
 };
 
 // Save lessons to localStorage
 const saveLessons = (lessons: Lesson[]) => {
-  localStorage.setItem('lessons', JSON.stringify(lessons));
+  try {
+    console.log("Saving lessons to localStorage:", lessons);
+    localStorage.setItem('lessons', JSON.stringify(lessons));
+    console.log("Successfully saved to localStorage");
+  } catch (error) {
+    console.error("Error saving lessons to localStorage:", error);
+  }
 };
 
 export let lessons: Lesson[] = loadLessons();
@@ -84,7 +98,9 @@ export const addLesson = (lesson: Lesson) => {
   lessons.push(lesson);
   console.log("lessons array now:", lessons);
   saveLessons(lessons);
-  console.log("Saved to localStorage");
+  // Force reload lessons array from storage
+  lessons.length = 0;
+  lessons.push(...loadLessons());
 };
 
 export const deleteLesson = (lessonId: number) => {
@@ -92,6 +108,9 @@ export const deleteLesson = (lessonId: number) => {
   if (index !== -1) {
     lessons.splice(index, 1);
     saveLessons(lessons);
+    // Force reload lessons array from storage
+    lessons.length = 0;
+    lessons.push(...loadLessons());
   }
 };
 
@@ -100,6 +119,9 @@ export const addWordToLesson = (lessonId: number, word: Word) => {
   if (lesson) {
     lesson.words.push(word);
     saveLessons(lessons);
+    // Force reload lessons array from storage
+    lessons.length = 0;
+    lessons.push(...loadLessons());
   }
 };
 
@@ -108,6 +130,9 @@ export const deleteWordFromLesson = (lessonId: number, wordIndex: number) => {
   if (lesson && lesson.words[wordIndex]) {
     lesson.words.splice(wordIndex, 1);
     saveLessons(lessons);
+    // Force reload lessons array from storage
+    lessons.length = 0;
+    lessons.push(...loadLessons());
   }
 };
 
