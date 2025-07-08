@@ -13,7 +13,7 @@ export interface Lesson {
   words: Word[];
 }
 
-export const lessons: Lesson[] = [
+const defaultLessons: Lesson[] = [
   {
     id: 1,
     title: "Lesson 1: Basic Greetings",
@@ -57,6 +57,56 @@ export const lessons: Lesson[] = [
     ]
   }
 ];
+
+// Load lessons from localStorage or use defaults
+const loadLessons = (): Lesson[] => {
+  const saved = localStorage.getItem('lessons');
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return [...defaultLessons];
+    }
+  }
+  return [...defaultLessons];
+};
+
+// Save lessons to localStorage
+const saveLessons = (lessons: Lesson[]) => {
+  localStorage.setItem('lessons', JSON.stringify(lessons));
+};
+
+export let lessons: Lesson[] = loadLessons();
+
+// Helper functions to manage lessons
+export const addLesson = (lesson: Lesson) => {
+  lessons.push(lesson);
+  saveLessons(lessons);
+};
+
+export const deleteLesson = (lessonId: number) => {
+  const index = lessons.findIndex(l => l.id === lessonId);
+  if (index !== -1) {
+    lessons.splice(index, 1);
+    saveLessons(lessons);
+  }
+};
+
+export const addWordToLesson = (lessonId: number, word: Word) => {
+  const lesson = lessons.find(l => l.id === lessonId);
+  if (lesson) {
+    lesson.words.push(word);
+    saveLessons(lessons);
+  }
+};
+
+export const deleteWordFromLesson = (lessonId: number, wordIndex: number) => {
+  const lesson = lessons.find(l => l.id === lessonId);
+  if (lesson && lesson.words[wordIndex]) {
+    lesson.words.splice(wordIndex, 1);
+    saveLessons(lessons);
+  }
+};
 
 // 📊 Progress tracking - scores are saved in browser storage
 export const getProgress = (lessonId: number): { score: number; completed: boolean } => {

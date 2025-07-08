@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, PlusCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { lessons, Word } from "@/data/lessons";
+import { lessons, Word, addLesson, deleteLesson, addWordToLesson, deleteWordFromLesson } from "@/data/lessons";
 
 interface AddContentFormProps {
   onLessonAdded?: () => void;
@@ -47,7 +47,7 @@ const AddContentForm = ({ onLessonAdded, onWordAdded, onLessonDeleted, onWordDel
       words: wordsArray
     };
 
-    lessons.push(newLesson);
+    addLesson(newLesson);
     
     setNewLessonTitle("");
     setNewLessonWords("");
@@ -68,42 +68,33 @@ const AddContentForm = ({ onLessonAdded, onWordAdded, onLessonDeleted, onWordDel
       return;
     }
 
-    const lesson = lessons.find(l => l.id === currentLessonId);
-    if (lesson) {
-      lesson.words.push({
-        english: newWordEnglish.trim(),
-        translation: newWordTranslation.trim()
-      });
+    addWordToLesson(currentLessonId, {
+      english: newWordEnglish.trim(),
+      translation: newWordTranslation.trim()
+    });
       
-      setNewWordEnglish("");
-      setNewWordTranslation("");
-      setIsAddingWord(false);
-      
-      toast.success("New word added successfully!");
-      onWordAdded?.();
-    }
+    setNewWordEnglish("");
+    setNewWordTranslation("");
+    setIsAddingWord(false);
+    
+    toast.success("New word added successfully!");
+    onWordAdded?.();
   };
 
-  const deleteLesson = () => {
+  const deleteLessonHandler = () => {
     if (!currentLessonId) return;
     
-    const lessonIndex = lessons.findIndex(l => l.id === currentLessonId);
-    if (lessonIndex !== -1) {
-      lessons.splice(lessonIndex, 1);
-      toast.success("Lesson deleted successfully!");
-      onLessonDeleted?.();
-    }
+    deleteLesson(currentLessonId);
+    toast.success("Lesson deleted successfully!");
+    onLessonDeleted?.();
   };
 
   const deleteWord = (wordIndex: number) => {
     if (!currentLessonId) return;
     
-    const lesson = lessons.find(l => l.id === currentLessonId);
-    if (lesson && lesson.words[wordIndex]) {
-      lesson.words.splice(wordIndex, 1);
-      toast.success("Word deleted successfully!");
-      onWordDeleted?.();
-    }
+    deleteWordFromLesson(currentLessonId, wordIndex);
+    toast.success("Word deleted successfully!");
+    onWordDeleted?.();
   };
 
   const currentLesson = currentLessonId ? lessons.find(l => l.id === currentLessonId) : null;
@@ -201,7 +192,7 @@ const AddContentForm = ({ onLessonAdded, onWordAdded, onLessonDeleted, onWordDel
       {currentLessonId && (
         <Button 
           variant="destructive" 
-          onClick={deleteLesson}
+          onClick={deleteLessonHandler}
           className="ml-auto"
         >
           <Trash2 className="h-4 w-4 mr-2" />
