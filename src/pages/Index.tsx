@@ -10,10 +10,12 @@ import AddContentForm from "@/components/AddContentForm";
 
 const Index = () => {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [currentLessons, setCurrentLessons] = useState(() => [...lessons]);
   const navigate = useNavigate();
   const overallProgress = getOverallProgress();
 
   const handleLessonAdded = () => {
+    setCurrentLessons([...lessons]);
     setRefreshKey(prev => prev + 1);
   };
 
@@ -46,7 +48,7 @@ const Index = () => {
 
         {/* Lessons Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {lessons.map((lesson) => {
+          {currentLessons.map((lesson) => {
             const progress = getProgress(lesson.id);
             const scoreColor = progress.score >= 80 ? 'bg-green-500' : progress.score >= 60 ? 'bg-yellow-500' : 'bg-red-500';
             

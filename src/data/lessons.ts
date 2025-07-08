@@ -80,8 +80,11 @@ export let lessons: Lesson[] = loadLessons();
 
 // Helper functions to manage lessons
 export const addLesson = (lesson: Lesson) => {
+  console.log("addLesson called with:", lesson);
   lessons.push(lesson);
+  console.log("lessons array now:", lessons);
   saveLessons(lessons);
+  console.log("Saved to localStorage");
 };
 
 export const deleteLesson = (lessonId: number) => {

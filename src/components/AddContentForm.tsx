@@ -47,7 +47,9 @@ const AddContentForm = ({ onLessonAdded, onWordAdded, onLessonDeleted, onWordDel
       words: wordsArray
     };
 
+    console.log("Adding new lesson:", newLesson);
     addLesson(newLesson);
+    console.log("Lessons after adding:", lessons);
     
     setNewLessonTitle("");
     setNewLessonWords("");
